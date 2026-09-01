@@ -53,3 +53,11 @@ def borrow(book_id: int):
             status_code=400,
             detail=str(error),
         )
+
+
+# @router.delete("")
+# def delete_book(data: CreateBookRequest):
+#     return add_book.execute(
+#         title=data.title,
+#         author=data.author,
+#     )

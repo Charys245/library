@@ -17,11 +17,17 @@ class InMemoryBookRepository(BookRepository):
 
         return book
 
+    # def delete(self, book: Book) -> Book:
+    #     if book.id == 0:
+    #         book.id = self.next_id
+    #         self.next_id += 1
+
+    #     self.books.append(book)
+
+    #     return book
+
     def get_all(self) -> list[Book]:
         return self.books
 
     def get_by_id(self, book_id: int) -> Book | None:
-        return next(
-            (book for book in self.books if book.id == book_id),
-            None
-        )
+        return next((book for book in self.books if book.id == book_id), None)
