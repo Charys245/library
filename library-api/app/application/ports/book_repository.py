@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from app.domain.book import Book
-
+from app.domain.entities.book import Book
 
 class BookRepository(ABC):
 
@@ -15,3 +14,12 @@ class BookRepository(ABC):
     @abstractmethod
     def get_by_id(self, book_id: int) -> Book | None:
         pass
+
+    @abstractmethod
+    def update(self, book : Book ) -> Book:
+        pass
+
+    @abstractmethod
+    def delete(self, book_id : int) -> bool:
+        pass
+

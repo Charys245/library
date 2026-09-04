@@ -1,4 +1,4 @@
-from app.domain.book import Book
+from app.domain.entities.book import Book
 from app.application.ports.book_repository import BookRepository
 
 
