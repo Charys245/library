@@ -103,7 +103,7 @@ export async function createBorrowing(data: {
   notes?: string;
 }): Promise<Borrowing> {
   try {
-    const res = await apiClient.post<Borrowing>("/api/borrowings", data);
+    const res = await apiClient.post<Borrowing>("/books/{book_id}/borrow", data);
     if (res.data) {
       return res.data;
     }
