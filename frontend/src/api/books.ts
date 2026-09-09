@@ -104,7 +104,10 @@ export async function deleteBook(id: string | number): Promise<boolean> {
 export async function getBookBorrowingHistory(
   bookId: string | number
 ): Promise<Borrowing[]> {
-  const response = await apiClient.get<Borrowing[]>(`/books/${bookId}/history`);
+  // const response = await apiClient.get<Borrowing[]>(`/books/${bookId}/history`);
+  const response = await apiClient.get<Borrowing[]>(
+    `/borrowings/book/${bookId}/history`
+  );
 
   return response.data;
 }

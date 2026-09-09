@@ -4,7 +4,12 @@
 //   BorrowerDashboardStats,
 //   RecentActivity,
 // } from "@/types";
-import type { BorrowerDashboardStats, Borrowing, ManagerDashboardStats, RecentActivity } from "@/types";
+import type {
+  BorrowerDashboardStats,
+  Borrowing,
+  ManagerDashboardStats,
+  RecentActivity,
+} from "@/types";
 import {
   apiClient,
   getStoredBooks,
@@ -36,7 +41,7 @@ export async function getBorrowings(
     if (params?.book_id) queryParams.book_id = String(params.book_id);
     if (params?.search) queryParams.search = params.search;
 
-    const res = await apiClient.get<Borrowing[]>("/api/borrowings", {
+    const res = await apiClient.get<Borrowing[]>("/borrowings/", {
       params: queryParams,
     });
     if (res.data) {
@@ -103,7 +108,7 @@ export async function createBorrowing(data: {
   notes?: string;
 }): Promise<Borrowing> {
   try {
-    const res = await apiClient.post<Borrowing>("/books/{book_id}/borrow", data);
+    const res = await apiClient.post<Borrowing>("/borrowings", data);
     if (res.data) {
       return res.data;
     }
@@ -200,7 +205,7 @@ export async function returnBorrowing(
 ): Promise<Borrowing> {
   try {
     const res = await apiClient.post<Borrowing>(
-      `/api/borrowings/${borrowingId}/return`
+      `/borrowings/${borrowingId}/return`
     );
     if (res.data) {
       return res.data;

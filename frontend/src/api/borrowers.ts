@@ -1,4 +1,5 @@
 import type { Borrower, Borrowing } from "@/types";
+import { getBookById } from "./books";
 import {
   apiClient,
   getStoredBorrowers,
@@ -10,7 +11,7 @@ import {
 
 export async function getBorrowers(search?: string): Promise<Borrower[]> {
   try {
-    const res = await apiClient.get<Borrower[]>("/api/borrowers", {
+    const res = await apiClient.get<Borrower[]>("/borrowers/", {
       params: search ? { search } : undefined,
     });
     if (res.data) {
@@ -52,7 +53,7 @@ export async function getBorrowers(search?: string): Promise<Borrower[]> {
 
 export async function getBorrowerById(id: string | number): Promise<Borrower> {
   try {
-    const res = await apiClient.get<Borrower>(`/api/borrowers/${id}`);
+    const res = await apiClient.get<Borrower>(`/borrowers/${id}`);
     if (res.data) {
       return res.data;
     }
@@ -87,7 +88,7 @@ export async function createBorrower(data: {
   phone?: string;
 }): Promise<Borrower> {
   try {
-    const res = await apiClient.post<Borrower>("/api/borrowers", data);
+    const res = await apiClient.post<Borrower>("/borrowers", data);
     if (res.data) {
       return res.data;
     }
@@ -137,7 +138,7 @@ export async function updateBorrower(
   >
 ): Promise<Borrower> {
   try {
-    const res = await apiClient.put<Borrower>(`/api/borrowers/${id}`, data);
+    const res = await apiClient.put<Borrower>(`/borrowers/${id}`, data);
     if (res.data) {
       return res.data;
     }
@@ -168,11 +169,34 @@ export async function getBorrowerHistory(
 ): Promise<Borrowing[]> {
   try {
     const res = await apiClient.get<Borrowing[]>(
-      `/api/borrowers/${borrowerId}/history`
+      // `/api/borrowers/${borrowerId}/history`
+      `/borrowings/borrower/${borrowerId}/history`
     );
     if (res.data) {
-      return res.data;
+      const enrichedHistory = await Promise.all(
+        res.data.map(async (borrowing) => {
+          try {
+            const book = await getBookById(borrowing.book_id);
+
+            return {
+              ...borrowing,
+              book_title: book.title,
+              book_author: book.author,
+            };
+          } catch {
+            return {
+              ...borrowing,
+              book_title: `Livre #${borrowing.book_id}`,
+            };
+          }
+        })
+      );
+
+      return enrichedHistory;
     }
+    // if (res.data) {
+    //   return res.data;
+    // }
   } catch {
     // Fallback
   }

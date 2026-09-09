@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 # from app.application.use_cases.add_book import AddBook
@@ -56,8 +56,8 @@ class UpdateBookRequest(BaseModel):
 
 
 @router.post("")
-def create_book(data: CreateBookRequest):
-    return add_book_use_case.execute(
+def create_book(data: CreateBookRequest, use_case=Depends(add_book_use_case)):
+    return use_case.execute(
         title=data.title,
         author=data.author,
         isbn=data.isbn,
@@ -68,15 +68,20 @@ def create_book(data: CreateBookRequest):
 
 
 @router.get("")
-def get_books():
-    return list_books_use_case.execute()
+def get_books(
+    use_case=Depends(list_books_use_case),
+):
+    return use_case.execute()
 
 
 @router.post("/{book_id}/borrow")
-def borrow(book_id: int):
+def borrow(
+    book_id: int,
+    use_case=Depends(borrow_book_use_case),
+):
 
     try:
-        return borrow_book_use_case.execute(book_id)
+        return use_case.execute(book_id)
 
     except ValueError as error:
         raise HTTPException(
@@ -96,9 +101,9 @@ def borrow(book_id: int):
 
 
 @router.get("/{book_id}")
-def get_book(book_id: int):
+def get_book(book_id: int, use_case=Depends(get_book_use_case)):
     try:
-        return get_book_use_case.execute(book_id)
+        return use_case.execute(book_id)
 
     except ValueError as error:
         raise HTTPException(
@@ -108,9 +113,11 @@ def get_book(book_id: int):
 
 
 @router.put("/{book_id}")
-def update(book_id: int, data: UpdateBookRequest):
+def update(
+    book_id: int, data: UpdateBookRequest, use_case=Depends(update_book_use_case)
+):
     try:
-        return update_book_use_case.execute(
+        return use_case.execute(
             book_id=book_id,
             title=data.title,
             author=data.author,
@@ -128,9 +135,9 @@ def update(book_id: int, data: UpdateBookRequest):
 
 
 @router.delete("/{book_id}")
-def delete_book(book_id: int):
+def delete_book(book_id: int, use_case=Depends(delete_book_use_case)):
     try:
-        delete_book_use_case.execute(book_id)
+        use_case.execute(book_id)
 
         return {
             "message": "Book deleted successfully",

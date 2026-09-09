@@ -11,15 +11,15 @@ export interface Book {
   category?: string;
   description?: string;
   status: BookStatus;
-  // current_borrowing?: {
-  //   id: string | number;
-  //   borrower_id: string | number;
-  //   borrower_name: string;
-  //   borrower_email?: string;
-  //   borrowed_at: string;
-  //   due_date: string;
-  // } | null;
-  // total_borrowings_count?: number;
+  current_borrowing?: {
+    id: string | number;
+    borrower_id: string | number;
+    borrower_name: string;
+    borrower_email?: string;
+    borrowed_at: string;
+    due_date: string;
+  } | null;
+  total_borrowings_count?: number;
   created_at?: string;
 }
 
