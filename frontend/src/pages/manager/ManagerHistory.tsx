@@ -6,10 +6,19 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
+import { Pagination } from '../../components/ui/Pagination';
 import { History, Search } from 'lucide-react';
+import { formaterDate } from '../../utils/function';
 
 export const ManagerHistory: React.FC = () => {
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+
+  const handleItemsPerPageChange = (size: number) => {
+    setItemsPerPage(size);
+    setCurrentPage(1);
+  };
   const { data: history = [], isLoading, error, refetch } = useBorrowingsHistory();
 
   const filtered = history.filter((bw) => {
@@ -42,7 +51,7 @@ export const ManagerHistory: React.FC = () => {
         <Input
           placeholder="Filtrer l'historique par titre ou emprunteur..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
           leftIcon={<Search className="w-4 h-4" />}
         />
       </div>
@@ -51,7 +60,7 @@ export const ManagerHistory: React.FC = () => {
       {isLoading ? (
         <TableSkeleton rows={5} columns={5} />
       ) : error ? (
-        <ErrorState message={error.message || 'Erreur lors du chargement de l’historique.'} onRetry={() => refetch()} />
+        <ErrorState message={error.message || "Erreur lors du chargement de l'historique."} onRetry={() => refetch()} />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={<History className="w-6 h-6" />}
@@ -59,10 +68,11 @@ export const ManagerHistory: React.FC = () => {
           description={
             search
               ? 'Aucun emprunt archivé ne correspond à votre recherche.'
-              : 'Aucun emprunt n’a encore été archivé comme retourné.'
+              : "Aucun emprunt n'a encore été archivé comme retourné."
           }
         />
       ) : (
+        <>
         <Table>
           <TableHeader>
             <TableRow>
@@ -75,7 +85,7 @@ export const ManagerHistory: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((bw) => (
+            {filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((bw) => (
               <TableRow key={bw.id}>
                 {/* Livre */}
                 <TableCell>
@@ -94,14 +104,14 @@ export const ManagerHistory: React.FC = () => {
                 </TableCell>
 
                 {/* Date emprunt */}
-                <TableCell className="text-xs font-mono text-zinc-400">{bw.borrowed_at}</TableCell>
+                <TableCell className="text-xs font-mono text-zinc-400">{formaterDate(bw.borrowed_at)}</TableCell>
 
                 {/* Echéance */}
-                <TableCell className="text-xs font-mono text-zinc-500">{bw.due_date}</TableCell>
+                <TableCell className="text-xs font-mono text-zinc-500">{formaterDate(bw.due_date)}</TableCell>
 
                 {/* Date de retour */}
                 <TableCell className="text-xs font-mono text-emerald-400 font-medium">
-                  {bw.returned_at || 'Retourné'}
+                  {bw.returned_at ? formaterDate(bw.returned_at) : 'Retourné'}
                 </TableCell>
 
                 {/* Statut */}
@@ -112,6 +122,15 @@ export const ManagerHistory: React.FC = () => {
             ))}
           </TableBody>
         </Table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(filtered.length / itemsPerPage)}
+          onPageChange={setCurrentPage}
+          totalItems={filtered.length}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
+        </>
       )}
     </div>
   );

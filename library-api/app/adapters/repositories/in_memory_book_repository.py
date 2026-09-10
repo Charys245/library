@@ -3,7 +3,6 @@ from app.application.ports.book_repository import BookRepository
 
 
 class InMemoryBookRepository(BookRepository):
-
     def __init__(self):
         self.books: list[Book] = []
         self.next_id = 1

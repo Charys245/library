@@ -14,6 +14,9 @@ class Borrowing:
     returned_at: datetime | None = None
     status: str = "active"
     notes: str | None = None
+    book_title: str | None = None
+    borrower_name: str | None = None
+    borrower_email: str | None = None
 
     def return_book(self):
         if self.status == "returned":

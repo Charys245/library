@@ -15,7 +15,7 @@ class Book:
     published_year: Optional[int] = None
     category: Optional[str] = None
     description: Optional[str] = None
-    
+
     status: str = "available"
     created_at: datetime = field(default_factory=datetime.now)
 

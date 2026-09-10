@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { formaterDate } from "../../utils/function";
 import type { Book, Borrowing } from "../../types";
 import {
   useBooks,
@@ -8,6 +9,7 @@ import {
   useDeleteBook,
   useCreateBorrowing,
   useReturnBorrowing,
+  isAlreadyDoneError,
 } from "../../hooks/useQueries";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -27,6 +29,7 @@ import { BookFormModal } from "../../components/books/BookFormModal";
 import { BookDeleteModal } from "../../components/books/BookDeleteModal";
 import { BorrowModal } from "../../components/borrowings/BorrowModal";
 import { ReturnConfirmModal } from "../../components/borrowings/ReturnConfirmModal";
+import { Pagination } from "../../components/ui/Pagination";
 import { useToast } from "../../context/ToastContext";
 import {
   Plus,
@@ -69,6 +72,15 @@ export const ManagerBooks: React.FC = () => {
   const createBorrowingMutation = useCreateBorrowing();
   const returnBorrowingMutation = useReturnBorrowing();
 
+  // Pagination
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handleItemsPerPageChange = (size: number) => {
+    setItemsPerPage(size);
+    setCurrentPage(1);
+  };
+
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [bookToEdit, setBookToEdit] = useState<Book | null>(null);
@@ -80,6 +92,7 @@ export const ManagerBooks: React.FC = () => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setActiveSearch(searchInput);
+    setCurrentPage(1);
   };
 
   const handleCreateOrUpdateBook = async (formData: any) => {
@@ -130,12 +143,13 @@ export const ManagerBooks: React.FC = () => {
   const handleCreateBorrow = async (data: any) => {
     try {
       await createBorrowingMutation.mutateAsync(data);
-      success("Emprunt validé", "L’emprunt a été enregistré.");
+      success("Emprunt validé", "L'emprunt a été enregistré.");
       setBookToBorrow(null);
     } catch (err: any) {
+      if (isAlreadyDoneError(err)) return;
       toastError(
-        "Erreur d’emprunt",
-        err?.message || "Impossible d’enregistrer l’emprunt."
+        "Erreur d'emprunt",
+        err?.message || "Impossible d'enregistrer l'emprunt."
       );
     }
   };
@@ -147,9 +161,10 @@ export const ManagerBooks: React.FC = () => {
       success("Retour effectué", `Le livre est à nouveau disponible.`);
       setReturnBorrowingTarget(null);
     } catch (err: any) {
+      if (isAlreadyDoneError(err)) { setReturnBorrowingTarget(null); return; }
       toastError(
         "Erreur",
-        err?.message || "Impossible d’enregistrer le retour."
+        err?.message || "Impossible d'enregistrer le retour."
       );
     }
   };
@@ -216,7 +231,7 @@ export const ManagerBooks: React.FC = () => {
         <div className="flex items-center gap-1.5 p-1 bg-[#111114] border border-zinc-800 rounded-lg self-start sm:self-auto">
           <button
             type="button"
-            onClick={() => setStatusFilter("all")}
+            onClick={() => { setStatusFilter("all"); setCurrentPage(1); }}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               statusFilter === "all"
                 ? "bg-zinc-800 text-zinc-100"
@@ -227,7 +242,7 @@ export const ManagerBooks: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setStatusFilter("available")}
+            onClick={() => { setStatusFilter("available"); setCurrentPage(1); }}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               statusFilter === "available"
                 ? "bg-zinc-800 text-emerald-400"
@@ -238,7 +253,7 @@ export const ManagerBooks: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setStatusFilter("borrowed")}
+            onClick={() => { setStatusFilter("borrowed"); setCurrentPage(1); }}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               statusFilter === "borrowed"
                 ? "bg-zinc-800 text-amber-300"
@@ -271,6 +286,7 @@ export const ManagerBooks: React.FC = () => {
           onAction={() => setIsAddModalOpen(true)}
         />
       ) : (
+        <>
         <Table>
           <TableHeader>
             <TableRow>
@@ -283,7 +299,7 @@ export const ManagerBooks: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {books.map((book) => {
+            {books.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((book) => {
               const isBorrowed =
                 book.status === "borrowed" || !!book.current_borrowing;
               return (
@@ -329,7 +345,7 @@ export const ManagerBooks: React.FC = () => {
                   {/* Retour prévu */}
                   <TableCell className="text-xs font-mono text-zinc-400">
                     {book.current_borrowing
-                      ? book.current_borrowing.due_date
+                      ? formaterDate(book.current_borrowing.due_date)
                       : "—"}
                   </TableCell>
 
@@ -351,7 +367,7 @@ export const ManagerBooks: React.FC = () => {
                         type="button"
                         onClick={() => setBookToEdit(book)}
                         className="p-1.5 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-md transition-colors"
-                        title="Modifier l’ouvrage"
+                        title="Modifier l'ouvrage"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -397,6 +413,15 @@ export const ManagerBooks: React.FC = () => {
             })}
           </TableBody>
         </Table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(books.length / itemsPerPage)}
+          onPageChange={setCurrentPage}
+          totalItems={books.length}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
+        </>
       )}
 
       {/* Modals */}

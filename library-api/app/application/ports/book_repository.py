@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from app.domain.entities.book import Book
 
 class BookRepository(ABC):
-
     @abstractmethod
     def save(self, book: Book) -> Book:
         pass
@@ -16,10 +15,9 @@ class BookRepository(ABC):
         pass
 
     @abstractmethod
-    def update(self, book : Book ) -> Book:
+    def update(self, book: Book) -> Book:
         pass
 
     @abstractmethod
-    def delete(self, book_id : int) -> bool:
+    def delete(self, book_id: int) -> bool:
         pass
-

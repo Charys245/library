@@ -3,7 +3,6 @@ from app.domain.entities.borrowing import Borrowing
 
 
 class InMemoryBorrowingRepository(BorrowingRepository):
-
     def __init__(self):
         self.borrowings: list[Borrowing] = []
         self.next_id = 1
@@ -17,8 +16,14 @@ class InMemoryBorrowingRepository(BorrowingRepository):
 
         return borrowing
 
-    def get_all(self) -> list[Borrowing]:
-        return self.borrowings
+    def get_all(self, status: str | None = None) -> list[Borrowing]:
+        borrowings = self.borrowings
+        if status and status != "all":
+            if status == "active":
+                borrowings = [bw for bw in borrowings if bw.status in ("active", "overdue")]
+            else:
+                borrowings = [bw for bw in borrowings if bw.status == status]
+        return borrowings
 
     def get_by_id(self, borrowing_id: int) -> Borrowing | None:
         return next(

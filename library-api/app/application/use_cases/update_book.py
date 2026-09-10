@@ -29,4 +29,3 @@ class UpdateBook:
         book.description = description
 
         return self.repository.update(book)
-

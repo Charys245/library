@@ -26,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
   const navigate = useNavigate();
 
   const managerLinks = [
-    { to: '/manager', label: 'Vue d’ensemble', icon: LayoutDashboard, end: true },
+    { to: '/manager', label: "Vue d'ensemble", icon: LayoutDashboard, end: true },
     { to: '/manager/books', label: 'Livres', icon: BookOpen },
     { to: '/manager/borrowers', label: 'Emprunteurs', icon: Users },
     { to: '/manager/borrowings', label: 'Emprunts en cours', icon: ArrowLeftRight },

@@ -3,7 +3,6 @@ from app.domain.entities.borrower import Borrower
 
 
 class InMemoryBorrowerRepository(BorrowerRepository):
-
     def __init__(self):
         self.borrowers: list[Borrower] = []
         self.next_id = 1
@@ -20,7 +19,6 @@ class InMemoryBorrowerRepository(BorrowerRepository):
         return self.borrowers
 
     def get_by_id(self, borrower_id: int) -> Borrower | None:
-
         return next(
             (borrower for borrower in self.borrowers if borrower.id == borrower_id),
             None,

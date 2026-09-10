@@ -7,6 +7,7 @@ import { Button } from '../ui/Button';
 import { Skeleton } from '../ui/Skeleton';
 import { EmptyState } from '../ui/EmptyState';
 import { Mail, Phone, Calendar, BookOpen, Clock, ArrowRightLeft, CheckCircle2 } from 'lucide-react';
+import { formaterDate } from '../../utils/function';
 
 interface BorrowerDetailDrawerProps {
   isOpen: boolean;
@@ -42,7 +43,7 @@ export const BorrowerDetailDrawer: React.FC<BorrowerDetailDrawerProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Fiche détaillée de l’emprunteur"
+      title="Fiche détaillée de l'emprunteur"
       description="Consultez les informations de contact, prêts en cours et historique complet."
       maxWidth="xl"
     >
@@ -121,10 +122,10 @@ export const BorrowerDetailDrawer: React.FC<BorrowerDetailDrawerProps> = ({
                   <div className="min-w-0">
                     <p className="font-semibold text-zinc-100 truncate">{bw.book_title}</p>
                     <div className="flex items-center gap-3 text-zinc-400 text-[11px] mt-0.5">
-                      <span>Emprunté le {bw.borrowed_at}</span>
+                      <span>Emprunté le {formaterDate(bw.borrowed_at)}</span>
                       <span className="text-zinc-500">•</span>
                       <span className={bw.status === 'overdue' ? 'text-red-400 font-semibold' : ''}>
-                        Retour prévu : {bw.due_date}
+                        Retour prévu : {formaterDate(bw.due_date)}
                       </span>
                     </div>
                   </div>
@@ -173,7 +174,7 @@ export const BorrowerDetailDrawer: React.FC<BorrowerDetailDrawerProps> = ({
                   <div className="min-w-0">
                     <p className="font-medium text-zinc-200 truncate">{bw.book_title}</p>
                     <p className="text-[11px] text-zinc-500 mt-0.5">
-                      Du {bw.borrowed_at} au {bw.returned_at || bw.due_date}
+                      Du {formaterDate(bw.borrowed_at)} au {formaterDate(bw.returned_at || bw.due_date)}
                     </p>
                   </div>
                   <Badge variant="returned" size="sm" />

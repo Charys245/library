@@ -81,7 +81,7 @@ export const INITIAL_BOOKS: Book[] = [
     isbn: '978-0135957059',
     published_year: 2019,
     category: 'Génie Logiciel',
-    description: 'Vingt ans après sa première édition, ce classique reste la référence pour passer du statut d’artisan du code à celui de développeur pragmatique.',
+    description: 'Vingt ans après sa première édition, ce classique reste la référence pour passer du statut d\'artisan du code à celui de développeur pragmatique.',
     status: 'borrowed',
     current_borrowing: {
       id: 'bw-1',
@@ -134,7 +134,7 @@ export const INITIAL_BOOKS: Book[] = [
     isbn: '978-0321125217',
     published_year: 2003,
     category: 'Architecture Métier',
-    description: 'L’ouvrage fondateur qui place le modèle de domaine au cœur de la conception logicielle face à des règles métier complexes.',
+    description: 'L\'ouvrage fondateur qui place le modèle de domaine au cœur de la conception logicielle face à des règles métier complexes.',
     status: 'available',
     current_borrowing: null,
     total_borrowings_count: 5,
@@ -173,7 +173,7 @@ export const INITIAL_BOOKS: Book[] = [
     isbn: '978-1491929124',
     published_year: 2016,
     category: 'DevOps & Fiabilité',
-    description: 'Retours d’expérience de Google sur l’exploitation de systèmes distribués à très grande échelle.',
+    description: 'Retours d\'expérience de Google sur l\'exploitation de systèmes distribués à très grande échelle.',
     status: 'borrowed',
     current_borrowing: {
       id: 'bw-3',

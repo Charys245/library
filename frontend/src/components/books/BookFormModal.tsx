@@ -65,7 +65,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
       newErrors.title = "Le titre du livre est obligatoire";
     }
     if (!author.trim()) {
-      newErrors.author = "L’auteur est obligatoire";
+      newErrors.author = "L'auteur est obligatoire";
     }
     if (
       publishedYear &&
@@ -98,8 +98,8 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
       title={bookToEdit ? "Modifier le livre" : "Ajouter un nouveau livre"}
       description={
         bookToEdit
-          ? "Mettez à jour les métadonnées de l’ouvrage dans le catalogue."
-          : "Enregistrez un nouvel ouvrage dans l’inventaire de la bibliothèque."
+          ? "Mettez à jour les métadonnées de l'ouvrage dans le catalogue."
+          : "Enregistrez un nouvel ouvrage dans l'inventaire de la bibliothèque."
       }
       maxWidth="lg"
     >
@@ -107,7 +107,7 @@ export const BookFormModal: React.FC<BookFormModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
             <Input
-              label="Titre de l’ouvrage"
+              label="Titre de l'ouvrage"
               placeholder="ex: Clean Architecture"
               value={title}
               onChange={(e) => setTitle(e.target.value)}

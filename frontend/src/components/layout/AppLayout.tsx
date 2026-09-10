@@ -12,7 +12,7 @@ export const AppLayout: React.FC = () => {
 
   const getPageMeta = () => {
     const path = location.pathname;
-    if (path === '/manager') return { title: 'Tableau de bord', subtitle: 'Aperçu global de l’activité de la bibliothèque' };
+    if (path === '/manager') return { title: 'Tableau de bord', subtitle: "Aperçu global de l'activité de la bibliothèque" };
     if (path === '/manager/books') return { title: 'Gestion des livres', subtitle: 'Catalogue, disponibilité et inventaire' };
     if (path.startsWith('/manager/books/')) return { title: 'Fiche détaillée du livre', subtitle: 'Informations, statut et historique des emprunts' };
     if (path === '/manager/borrowers') return { title: 'Gestion des emprunteurs', subtitle: 'Adhérents, contacts et état des prêts' };
@@ -21,7 +21,7 @@ export const AppLayout: React.FC = () => {
 
     if (path === '/borrower') return { title: 'Espace Adhérent', subtitle: 'Vos emprunts en cours et échéances' };
     if (path === '/borrower/catalog') return { title: 'Catalogue de la bibliothèque', subtitle: 'Explorez et empruntez des ouvrages disponibles' };
-    if (path.startsWith('/borrower/catalog/')) return { title: 'Détails de l’ouvrage', subtitle: 'Informations sur l’œuvre et disponibilité' };
+    if (path.startsWith('/borrower/catalog/')) return { title: "Détails de l'ouvrage", subtitle: "Informations sur l'œuvre et disponibilité" };
     if (path === '/borrower/borrowings') return { title: 'Mes emprunts en cours', subtitle: 'Livres empruntés et dates de retour prévues' };
     if (path === '/borrower/history') return { title: 'Mon historique de lecture', subtitle: 'Vos lectures passées et livres retournés' };
 

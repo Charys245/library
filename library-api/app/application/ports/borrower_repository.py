@@ -3,7 +3,6 @@ from app.domain.entities.borrower import Borrower
 
 
 class BorrowerRepository(ABC):
-
     @abstractmethod
     def save(self, borrower: Borrower) -> Borrower:
         pass

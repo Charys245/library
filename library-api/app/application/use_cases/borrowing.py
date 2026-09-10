@@ -7,7 +7,6 @@ from app.domain.entities.borrowing import Borrowing
 
 
 class CreateBorrowing:
-
     def __init__(
         self,
         book_repository: BookRepository,
@@ -25,7 +24,6 @@ class CreateBorrowing:
         due_date: str | None = None,
         notes: str | None = None,
     ) -> Borrowing:
-
         book = self.book_repository.get_by_id(book_id)
 
         if book is None:
@@ -66,21 +64,18 @@ class CreateBorrowing:
 
 
 class ListBorrowings:
-
     def __init__(self, repository: BorrowingRepository):
         self.repository = repository
 
-    def execute(self) -> list[Borrowing]:
-        return self.repository.get_all()
+    def execute(self, status: str | None = None) -> list[Borrowing]:
+        return self.repository.get_all(status)
 
 
 class GetBorrowing:
-
     def __init__(self, repository: BorrowingRepository):
         self.repository = repository
 
     def execute(self, borrowing_id: int) -> Borrowing:
-
         borrowing = self.repository.get_by_id(borrowing_id)
 
         if borrowing is None:
@@ -90,7 +85,6 @@ class GetBorrowing:
 
 
 class ReturnBorrowing:
-
     def __init__(
         self,
         book_repository: BookRepository,
@@ -102,7 +96,6 @@ class ReturnBorrowing:
         self.borrowing_repository = borrowing_repository
 
     def execute(self, borrowing_id: int) -> Borrowing:
-
         borrowing = self.borrowing_repository.get_by_id(borrowing_id)
 
         if borrowing is None:
@@ -126,7 +119,6 @@ class ReturnBorrowing:
 
 
 class GetBookBorrowingHistory:
-
     def __init__(self, repository: BorrowingRepository):
         self.repository = repository
 
@@ -135,7 +127,6 @@ class GetBookBorrowingHistory:
 
 
 class GetBorrowerHistory:
-
     def __init__(self, repository: BorrowingRepository):
         self.repository = repository
 

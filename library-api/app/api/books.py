@@ -1,15 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-# from app.application.use_cases.add_book import AddBook
-# from app.application.use_cases.list_books import ListBooks
-# from app.application.use_cases.borrow_book import BorrowBook
-# from app.application.use_cases.update_book import UpdateBook
-# from app.application.use_cases.delete_book import DeleteBook
-# from app.adapters.repositories.in_memory_book_repository import (
-#     InMemoryBookRepository,
-# )
-
 from app.api.dependencies import (
     add_book_use_case,
     list_books_use_case,
@@ -23,18 +14,6 @@ router = APIRouter(
     prefix="/books",
     tags=["Books"],
 )
-
-
-# Infrastructure
-# repository = InMemoryBookRepository()
-
-
-# Use cases
-# add_book_use_case = AddBook(repository)
-# list_books_use_case = ListBooks(repository)
-# borrow_book_use_case = BorrowBook(repository)
-# update_book_use_case = UpdateBook(repository)
-# delete_book_use_case = DeleteBook(repository)
 
 
 class CreateBookRequest(BaseModel):
@@ -79,7 +58,6 @@ def borrow(
     book_id: int,
     use_case=Depends(borrow_book_use_case),
 ):
-
     try:
         return use_case.execute(book_id)
 

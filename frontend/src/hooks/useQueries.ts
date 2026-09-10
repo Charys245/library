@@ -42,6 +42,17 @@ import type {
 } from "@/types";
 
 /* ============================================================
+   HELPERS
+   ============================================================ */
+
+/** Retourne true si l'erreur signifie que l'état est déjà correct côté serveur
+ *  (emprunt déjà retourné, livre déjà emprunté) — pas besoin d'afficher un toast. */
+export function isAlreadyDoneError(err: unknown): boolean {
+  const msg = (err as any)?.message ?? '';
+  return msg.includes('déjà retourné') || msg.includes('déjà emprunté');
+}
+
+/* ============================================================
    QUERY KEYS
    ============================================================ */
 
@@ -340,29 +351,18 @@ export function useCreateBorrowing() {
     mutationFn: createBorrowing,
 
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.borrowings.all,
-      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.borrowings.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.books.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.borrowers.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats.manager });
+      queryClient.invalidateQueries({ queryKey: ["stats", "borrower"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.activities });
+    },
 
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.books.all,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.borrowers.all,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.stats.manager,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["stats", "borrower"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.activities,
-      });
+    onError: () => {
+      // Resync l'UI avec le vrai état serveur en cas d'erreur de désynchronisation
+      queryClient.invalidateQueries({ queryKey: queryKeys.books.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.borrowings.all });
     },
   });
 }
@@ -374,29 +374,19 @@ export function useReturnBorrowing() {
     mutationFn: returnBorrowing,
 
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.borrowings.all,
-      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.borrowings.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.books.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.borrowers.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats.manager });
+      queryClient.invalidateQueries({ queryKey: ["stats", "borrower"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.activities });
+    },
 
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.books.all,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.borrowers.all,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.stats.manager,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["stats", "borrower"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.activities,
-      });
+    onError: () => {
+      // Resync l'UI avec le vrai état serveur en cas d'erreur de désynchronisation
+      queryClient.invalidateQueries({ queryKey: queryKeys.books.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.borrowings.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.borrowers.all });
     },
   });
 }

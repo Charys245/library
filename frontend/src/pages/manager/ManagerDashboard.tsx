@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { formaterDate } from "../../utils/function";
 import {
   BookOpen,
   CheckCircle2,
@@ -100,7 +101,7 @@ export const ManagerDashboard: React.FC = () => {
     } catch (err: any) {
       toastError(
         "Erreur de retour",
-        err?.message || "Impossible d’enregistrer le retour."
+        err?.message || "Impossible d'enregistrer le retour."
       );
     }
   };
@@ -112,8 +113,8 @@ export const ManagerDashboard: React.FC = () => {
       setIsAddBookOpen(false);
     } catch (err: any) {
       toastError(
-        "Erreur d’ajout",
-        err?.message || "Impossible d’ajouter le livre."
+        "Erreur d'ajout",
+        err?.message || "Impossible d'ajouter le livre."
       );
     }
   };
@@ -128,8 +129,8 @@ export const ManagerDashboard: React.FC = () => {
       setIsAddBorrowerOpen(false);
     } catch (err: any) {
       toastError(
-        "Erreur d’inscription",
-        err?.message || "Impossible d’inscrire l’emprunteur."
+        "Erreur d'inscription",
+        err?.message || "Impossible d'inscrire l'emprunteur."
       );
     }
   };
@@ -137,12 +138,12 @@ export const ManagerDashboard: React.FC = () => {
   const handleCreateBorrowing = async (data: any) => {
     try {
       await createBorrowingMutation.mutateAsync(data);
-      success("Emprunt validé", "L’emprunt a été enregistré avec succès.");
+      success("Emprunt validé", "L'emprunt a été enregistré avec succès.");
       setIsBorrowOpen(false);
     } catch (err: any) {
       toastError(
-        "Erreur d’emprunt",
-        err?.message || "Impossible d’enregistrer l’emprunt."
+        "Erreur d'emprunt",
+        err?.message || "Impossible d'enregistrer l'emprunt."
       );
     }
   };
@@ -171,7 +172,7 @@ export const ManagerDashboard: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-zinc-800">
         <div>
           <h1 className="text-xl font-bold text-zinc-100 tracking-tight">
-            Vue d’ensemble
+            Vue d'ensemble
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
             Suivi en temps réel des prêts, des retours et de la disponibilité du
@@ -323,7 +324,7 @@ export const ManagerDashboard: React.FC = () => {
                       {bw.borrower_name}
                     </TableCell>
                     <TableCell className="font-mono text-xs text-zinc-400">
-                      {bw.due_date}
+                      {formaterDate(bw.due_date)}
                     </TableCell>
                     <TableCell>
                       <Badge variant={bw.status} size="sm" />

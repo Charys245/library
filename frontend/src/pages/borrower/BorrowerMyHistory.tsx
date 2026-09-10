@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useBorrowings } from '../../hooks/useQueries';
 import { useAuth } from '../../context/AuthContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
@@ -6,10 +6,19 @@ import { TableSkeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { Badge } from '../../components/ui/Badge';
+import { Pagination } from '../../components/ui/Pagination';
 import { History } from 'lucide-react';
+import { formaterDate } from '../../utils/function';
 
 export const BorrowerMyHistory: React.FC = () => {
   const { activeBorrower } = useAuth();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+
+  const handleItemsPerPageChange = (size: number) => {
+    setItemsPerPage(size);
+    setCurrentPage(1);
+  };
 
   const {
     data: history = [],
@@ -57,6 +66,7 @@ export const BorrowerMyHistory: React.FC = () => {
           description="Vous n'avez pas encore terminé et rendu d'emprunts."
         />
       ) : (
+        <>
         <Table>
           <TableHeader>
             <TableRow>
@@ -67,7 +77,7 @@ export const BorrowerMyHistory: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {history.map((bw) => (
+            {history.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((bw) => (
               <TableRow key={bw.id}>
                 {/* Livre */}
                 <TableCell>
@@ -79,12 +89,12 @@ export const BorrowerMyHistory: React.FC = () => {
 
                 {/* Emprunté le */}
                 <TableCell className="text-xs font-mono text-zinc-400">
-                  {bw.borrowed_at}
+                  {formaterDate(bw.borrowed_at)}
                 </TableCell>
 
                 {/* Retourné le */}
                 <TableCell className="text-xs font-mono text-emerald-400 font-medium">
-                  {bw.returned_at || 'Retourné'}
+                  {bw.returned_at ? formaterDate(bw.returned_at) : 'Retourné'}
                 </TableCell>
 
                 {/* Statut */}
@@ -95,6 +105,15 @@ export const BorrowerMyHistory: React.FC = () => {
             ))}
           </TableBody>
         </Table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(history.length / itemsPerPage)}
+          onPageChange={setCurrentPage}
+          totalItems={history.length}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
+        </>
       )}
     </div>
   );

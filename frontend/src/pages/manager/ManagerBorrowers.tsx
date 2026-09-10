@@ -6,6 +6,7 @@ import {
   useUpdateBorrower,
   useCreateBorrowing,
   useReturnBorrowing,
+  isAlreadyDoneError,
 } from '../../hooks/useQueries';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -17,6 +18,7 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { BorrowerFormModal } from '../../components/borrowers/BorrowerFormModal';
 import { BorrowerDetailDrawer } from '../../components/borrowers/BorrowerDetailDrawer';
 import { BorrowModal } from '../../components/borrowings/BorrowModal';
+import { Pagination } from '../../components/ui/Pagination';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import {
@@ -34,7 +36,14 @@ export const ManagerBorrowers: React.FC = () => {
   const { refreshBorrowers } = useAuth();
   const { success, error: toastError } = useToast();
 
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
+
+  const handleItemsPerPageChange = (size: number) => {
+    setItemsPerPage(size);
+    setCurrentPage(1);
+  };
   const [activeSearch, setActiveSearch] = useState('');
 
   // React Query hooks
@@ -59,6 +68,7 @@ export const ManagerBorrowers: React.FC = () => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setActiveSearch(searchInput);
+    setCurrentPage(1);
   };
 
   const handleCreateOrUpdateBorrower = async (formData: any) => {
@@ -84,7 +94,8 @@ export const ManagerBorrowers: React.FC = () => {
       success('Emprunt validé', 'Le prêt a été enregistré avec succès.');
       setBorrowerToBorrow(null);
     } catch (err: any) {
-      toastError('Erreur d’emprunt', err?.message);
+      if (isAlreadyDoneError(err)) return;
+      toastError("Erreur d'emprunt", err?.message);
     }
   };
 
@@ -104,6 +115,7 @@ export const ManagerBorrowers: React.FC = () => {
         );
       }
     } catch (err: any) {
+      if (isAlreadyDoneError(err)) return;
       toastError('Erreur', err?.message);
     }
   };
@@ -160,12 +172,13 @@ export const ManagerBorrowers: React.FC = () => {
           description={
             activeSearch
               ? 'Aucun adhérent ne correspond à votre recherche.'
-              : 'Aucun emprunteur n’est actuellement inscrit dans le registre.'
+              : "Aucun emprunteur n'est actuellement inscrit dans le registre."
           }
           actionLabel="Inscrire un emprunteur"
           onAction={() => setIsAddModalOpen(true)}
         />
       ) : (
+        <>
         <Table>
           <TableHeader>
             <TableRow>
@@ -178,7 +191,7 @@ export const ManagerBorrowers: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {borrowers.map((borrower) => (
+            {borrowers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((borrower) => (
               <TableRow key={borrower.id}>
                 {/* Nom */}
                 <TableCell>
@@ -268,6 +281,15 @@ export const ManagerBorrowers: React.FC = () => {
             ))}
           </TableBody>
         </Table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(borrowers.length / itemsPerPage)}
+          onPageChange={setCurrentPage}
+          totalItems={borrowers.length}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
+        </>
       )}
 
       {/* Modals */}

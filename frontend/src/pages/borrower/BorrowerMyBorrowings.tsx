@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 // import { Borrowing } from '@/types';
 // import { useBorrowings, useReturnBorrowing } from '../../hooks/useQueries';
 import { useAuth } from '../../context/AuthContext';
+import { formaterDate } from '../../utils/function';
 import { useToast } from '../../context/ToastContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { TableSkeleton } from '../../components/ui/Skeleton';
@@ -11,9 +12,10 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { ReturnConfirmModal } from '../../components/borrowings/ReturnConfirmModal';
+import { Pagination } from '../../components/ui/Pagination';
 import { ArrowLeftRight, RotateCcw, BookMarked, Eye } from 'lucide-react';
 import type { Borrowing } from '@/types';
-import { useBorrowings, useReturnBorrowing } from '@/hooks/useQueries';
+import { useBorrowings, useReturnBorrowing, isAlreadyDoneError } from '@/hooks/useQueries';
 
 export const BorrowerMyBorrowings: React.FC = () => {
   const { activeBorrower } = useAuth();
@@ -30,7 +32,14 @@ export const BorrowerMyBorrowings: React.FC = () => {
     status: 'active',
   });
 
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
   const returnBorrowingMutation = useReturnBorrowing();
+
+  const handleItemsPerPageChange = (size: number) => {
+    setItemsPerPage(size);
+    setCurrentPage(1);
+  };
   const [returnTarget, setReturnTarget] = useState<Borrowing | null>(null);
 
   const handleReturnConfirm = async () => {
@@ -40,6 +49,7 @@ export const BorrowerMyBorrowings: React.FC = () => {
       success('Livre retourné', `Le retour de "${returnTarget.book_title}" a été confirmé.`);
       setReturnTarget(null);
     } catch (err: any) {
+      if (isAlreadyDoneError(err)) { setReturnTarget(null); return; }
       toastError('Erreur', err?.message);
     }
   };
@@ -87,6 +97,7 @@ export const BorrowerMyBorrowings: React.FC = () => {
           onAction={() => navigate('/borrower/catalog')}
         />
       ) : (
+        <>
         <Table>
           <TableHeader>
             <TableRow>
@@ -98,7 +109,7 @@ export const BorrowerMyBorrowings: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {borrowings.map((bw) => (
+            {borrowings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((bw) => (
               <TableRow key={bw.id}>
                 {/* Titre */}
                 <TableCell>
@@ -110,13 +121,13 @@ export const BorrowerMyBorrowings: React.FC = () => {
 
                 {/* Date d'emprunt */}
                 <TableCell className="text-xs font-mono text-zinc-300">
-                  {bw.borrowed_at}
+                  {formaterDate(bw.borrowed_at)}
                 </TableCell>
 
                 {/* Retour prévu */}
                 <TableCell className="text-xs font-mono">
                   <span className={bw.status === 'overdue' ? 'text-red-400 font-bold' : 'text-zinc-200'}>
-                    {bw.due_date}
+                    {formaterDate(bw.due_date)}
                   </span>
                 </TableCell>
 
@@ -152,6 +163,15 @@ export const BorrowerMyBorrowings: React.FC = () => {
             ))}
           </TableBody>
         </Table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(borrowings.length / itemsPerPage)}
+          onPageChange={setCurrentPage}
+          totalItems={borrowings.length}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
+        </>
       )}
 
       {/* Return Modal */}

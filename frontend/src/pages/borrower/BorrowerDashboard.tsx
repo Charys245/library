@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { formaterDate } from "../../utils/function";
 // import { Borrowing, Book } from '../../types';
 import {
   useBorrowerStats,
@@ -94,12 +95,12 @@ export const BorrowerDashboard: React.FC = () => {
       });
       success("Emprunt confirmé", `Vous avez emprunté "${book.title}".`);
     } catch (err: any) {
-      toastError("Erreur d’emprunt", err?.message);
+      toastError("Erreur d'emprunt", err?.message);
     }
   };
 
-  const isActionLoading =
-    returnBorrowingMutation.isPending || createBorrowingMutation.isPending;
+  // const isActionLoading =
+  //   returnBorrowingMutation.isPending || createBorrowingMutation.isPending;
   const availableBooks = allAvailableBooks.slice(0, 3);
 
   if (!activeBorrower) {
@@ -132,7 +133,7 @@ export const BorrowerDashboard: React.FC = () => {
             Bonjour, {activeBorrower.name}
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Consultez l’état de vos prêts, anticipez vos dates d’échéance et
+            Consultez l'état de vos prêts, anticipez vos dates d'échéance et
             découvrez les nouveautés.
           </p>
         </div>
@@ -272,7 +273,7 @@ export const BorrowerDashboard: React.FC = () => {
                     )}
 
                     <div className="mt-3 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400">
-                      <span>Emprunté le : {bw.borrowed_at}</span>
+                      <span>Emprunté le : {formaterDate(bw.borrowed_at)}</span>
                       <span
                         className={
                           isOverdue
@@ -280,7 +281,7 @@ export const BorrowerDashboard: React.FC = () => {
                             : "text-zinc-300"
                         }
                       >
-                        Retour prévu : {bw.due_date}
+                        Retour prévu : {formaterDate(bw.due_date)}
                       </span>
                     </div>
                   </div>
@@ -290,6 +291,14 @@ export const BorrowerDashboard: React.FC = () => {
                       variant="secondary"
                       size="sm"
                       onClick={() => setReturnTarget(bw)}
+                      disabled={
+                        returnBorrowingMutation.isPending &&
+                        returnTarget?.id === bw.id
+                      }
+                      isLoading={
+                        returnBorrowingMutation.isPending &&
+                        returnTarget?.id === bw.id
+                      }
                       className="text-xs"
                       leftIcon={
                         <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
@@ -341,6 +350,7 @@ export const BorrowerDashboard: React.FC = () => {
                 onBorrow={handleDirectBorrow}
                 showBorrowButton={true}
                 basePath="/borrower/catalog"
+                isBorrowing={createBorrowingMutation.isPending}
               />
             ))}
           </div>
@@ -353,7 +363,7 @@ export const BorrowerDashboard: React.FC = () => {
         onClose={() => setReturnTarget(null)}
         onConfirm={handleReturnConfirm}
         borrowing={returnTarget}
-        isLoading={isActionLoading}
+        isLoading={returnBorrowingMutation.isPending}
       />
     </div>
   );

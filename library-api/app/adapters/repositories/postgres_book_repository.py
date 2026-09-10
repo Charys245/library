@@ -70,7 +70,7 @@ class PostgresBookRepository(BookRepository):
         self.session.commit()
 
         return True
-    
+
     def update(self, book: Book) -> Book:
         model = self.session.get(BookModel, book.id)
 

@@ -1,6 +1,7 @@
 import React from 'react';
+import { formaterDate } from '../../utils/function';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useBook, useCreateBorrowing } from '../../hooks/useQueries';
+import { useBook, useCreateBorrowing, isAlreadyDoneError } from '../../hooks/useQueries';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/ui/Button';
@@ -30,7 +31,7 @@ export const BorrowerBookDetails: React.FC = () => {
       return;
     }
     if (book.status !== 'available') {
-      toastError('Action impossible', 'Cet ouvrage n’est pas disponible.');
+      toastError('Action impossible', "Cet ouvrage n'est pas disponible.");
       return;
     }
 
@@ -41,7 +42,8 @@ export const BorrowerBookDetails: React.FC = () => {
       });
       success('Emprunt validé', `Vous avez emprunté "${book.title}".`);
     } catch (err: any) {
-      toastError('Erreur lors de l’emprunt', err?.message);
+      if (isAlreadyDoneError(err)) return;
+      toastError("Erreur lors de l'emprunt", err?.message);
     }
   };
 
@@ -104,6 +106,7 @@ export const BorrowerBookDetails: React.FC = () => {
             size="sm"
             onClick={handleBorrow}
             isLoading={createBorrowingMutation.isPending}
+            disabled={createBorrowingMutation.isPending}
             leftIcon={<BookmarkCheck className="w-4 h-4" />}
           >
             Emprunter ce livre
@@ -117,7 +120,7 @@ export const BorrowerBookDetails: React.FC = () => {
           <div className="p-6 rounded-xl bg-[#111114] border border-zinc-800 space-y-4">
             <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider flex items-center gap-2">
               <FileText className="w-4 h-4 text-zinc-400" />
-              <span>Informations sur l’œuvre</span>
+              <span>Informations sur l'œuvre</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -145,7 +148,7 @@ export const BorrowerBookDetails: React.FC = () => {
 
             {book.description && (
               <div className="pt-4 border-t border-zinc-800">
-                <span className="text-zinc-500 text-xs block mb-1.5">Résumé de l’ouvrage</span>
+                <span className="text-zinc-500 text-xs block mb-1.5">Résumé de l'ouvrage</span>
                 <p className="text-xs text-zinc-300 leading-relaxed bg-[#0c0c0e] p-3.5 rounded-lg border border-zinc-800">
                   {book.description}
                 </p>
@@ -177,6 +180,7 @@ export const BorrowerBookDetails: React.FC = () => {
                   size="sm"
                   className="w-full text-xs"
                   onClick={handleBorrow}
+                  disabled={createBorrowingMutation.isPending}
                   isLoading={createBorrowingMutation.isPending}
                   leftIcon={<BookmarkCheck className="w-3.5 h-3.5" />}
                 >
@@ -195,7 +199,7 @@ export const BorrowerBookDetails: React.FC = () => {
                 <div className="pt-2 border-t border-blue-900/40 text-xs">
                   <span className="text-zinc-500 block text-[11px]">Date d'échéance :</span>
                   <span className="font-mono text-blue-300 font-semibold">
-                    {book.current_borrowing?.due_date}
+                    {book.current_borrowing?.due_date ? formaterDate(book.current_borrowing.due_date) : ''}
                   </span>
                 </div>
               </div>

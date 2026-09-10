@@ -4,6 +4,17 @@ from sqlalchemy.orm import Session
 from app.database.session import get_session
 from app.application.ports.book_repository import BookRepository
 from app.adapters.repositories.postgres_book_repository import PostgresBookRepository
+from app.application.ports.borrower_repository import BorrowerRepository
+
+from app.adapters.repositories.postgres_borrower_repository import (
+    PostgresBorrowerRepository,
+)
+
+from app.application.ports.borrowing_repository import BorrowingRepository
+from app.adapters.repositories.postgres_borrowing_repository import (
+    PostgresBorrowingRepository,
+)
+
 
 from app.adapters.repositories.in_memory_book_repository import (
     InMemoryBookRepository,
@@ -104,41 +115,145 @@ def borrow_book_use_case(
 # Borrower use cases
 # ============================================================
 
-create_borrower_use_case = CreateBorrower(borrower_repository)
-list_borrowers_use_case = ListBorrowers(borrower_repository)
-get_borrower_use_case = GetBorrower(borrower_repository)
-update_borrower_use_case = UpdateBorrower(borrower_repository)
-delete_borrower_use_case = DeleteBorrower(borrower_repository)
+# create_borrower_use_case = CreateBorrower(borrower_repository)
+# list_borrowers_use_case = ListBorrowers(borrower_repository)
+# get_borrower_use_case = GetBorrower(borrower_repository)
+# update_borrower_use_case = UpdateBorrower(borrower_repository)
+# delete_borrower_use_case = DeleteBorrower(borrower_repository)
+
+
+def get_borrower_repository(
+    session: Session = Depends(get_session),
+) -> BorrowerRepository:
+    return PostgresBorrowerRepository(session)
+
+
+def create_borrower_use_case(
+    repository: BorrowerRepository = Depends(get_borrower_repository),
+) -> CreateBorrower:
+    return CreateBorrower(repository)
+
+
+def list_borrowers_use_case(
+    repository: BorrowerRepository = Depends(get_borrower_repository),
+) -> ListBorrowers:
+    return ListBorrowers(repository)
+
+
+def get_borrower_use_case(
+    repository: BorrowerRepository = Depends(get_borrower_repository),
+) -> GetBorrower:
+    return GetBorrower(repository)
+
+
+def update_borrower_use_case(
+    repository: BorrowerRepository = Depends(get_borrower_repository),
+) -> UpdateBorrower:
+    return UpdateBorrower(repository)
+
+
+def delete_borrower_use_case(
+    repository: BorrowerRepository = Depends(get_borrower_repository),
+) -> DeleteBorrower:
+    return DeleteBorrower(repository)
 
 
 # ============================================================
 # Borrowing use cases
 # ============================================================
 
-create_borrowing_use_case = CreateBorrowing(
-    book_repository,
-    borrower_repository,
-    borrowing_repository,
-)
 
-list_borrowings_use_case = ListBorrowings(
-    borrowing_repository,
-)
+def get_borrowing_repository(
+    session: Session = Depends(get_session),
+) -> BorrowingRepository:
+    return PostgresBorrowingRepository(session)
 
-get_borrowing_use_case = GetBorrowing(
-    borrowing_repository,
-)
 
-return_borrowing_use_case = ReturnBorrowing(
-    book_repository,
-    borrower_repository,
-    borrowing_repository,
-)
+# create_borrowing_use_case = CreateBorrowing(
+#     book_repository,
+#     borrower_repository,
+#     borrowing_repository,
+# )
 
-get_book_borrowing_history_use_case = GetBookBorrowingHistory(
-    borrowing_repository,
-)
 
-get_borrower_history_use_case = GetBorrowerHistory(
-    borrowing_repository,
-)
+def create_borrowing_use_case(
+    book_repository: BookRepository = Depends(get_book_repository),
+    borrower_repository: BorrowerRepository = Depends(get_borrower_repository),
+    borrowing_repository: BorrowingRepository = Depends(get_borrowing_repository),
+) -> CreateBorrowing:
+    return CreateBorrowing(
+        book_repository,
+        borrower_repository,
+        borrowing_repository,
+    )
+
+
+# list_borrowings_use_case = ListBorrowings(
+#     borrowing_repository,
+# )
+
+
+def list_borrowings_use_case(
+    borrowing_repository: BorrowingRepository = Depends(get_borrowing_repository),
+) -> ListBorrowings:
+    return ListBorrowings(
+        borrowing_repository,
+    )
+
+
+# get_borrowing_use_case = GetBorrowing(
+#     borrowing_repository,
+# )
+
+
+def get_borrowing_use_case(
+    borrowing_repository: BorrowingRepository = Depends(get_borrowing_repository),
+) -> GetBorrowing:
+    return GetBorrowing(
+        borrowing_repository,
+    )
+
+
+# return_borrowing_use_case = ReturnBorrowing(
+#     book_repository,
+#     borrower_repository,
+#     borrowing_repository,
+# )
+
+
+def return_borrowing_use_case(
+    book_repository: BookRepository = Depends(get_book_repository),
+    borrower_repository: BorrowerRepository = Depends(get_borrower_repository),
+    borrowing_repository: BorrowingRepository = Depends(get_borrowing_repository),
+) -> ReturnBorrowing:
+    return ReturnBorrowing(
+        book_repository,
+        borrower_repository,
+        borrowing_repository,
+    )
+
+
+# get_book_borrowing_history_use_case = GetBookBorrowingHistory(
+#     borrowing_repository,
+# )
+
+
+def get_book_borrowing_history_use_case(
+    borrowing_repository: BorrowingRepository = Depends(get_borrowing_repository),
+) -> GetBookBorrowingHistory:
+    return GetBookBorrowingHistory(
+        borrowing_repository,
+    )
+
+
+# get_borrower_history_use_case = GetBorrowerHistory(
+#     borrowing_repository,
+# )
+
+
+def get_borrower_history_use_case(
+    borrowing_repository: BorrowingRepository = Depends(get_borrowing_repository),
+) -> GetBorrowerHistory:
+    return GetBorrowerHistory(
+        borrowing_repository,
+    )

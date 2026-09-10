@@ -45,7 +45,24 @@ export async function getBorrowings(
       params: queryParams,
     });
     if (res.data) {
-      return res.data;
+      let data = res.data;
+      // status is filtered server-side; apply remaining client-side filters
+      if (params?.borrower_id) {
+        data = data.filter((bw) => String(bw.borrower_id) === String(params.borrower_id));
+      }
+      if (params?.book_id) {
+        data = data.filter((bw) => String(bw.book_id) === String(params.book_id));
+      }
+      if (params?.search) {
+        const s = params.search.toLowerCase();
+        data = data.filter(
+          (bw) =>
+            bw.book_title?.toLowerCase().includes(s) ||
+            bw.borrower_name?.toLowerCase().includes(s) ||
+            bw.borrower_email?.toLowerCase().includes(s)
+        );
+      }
+      return data;
     }
   } catch {
     // Fallback
@@ -109,95 +126,105 @@ export async function createBorrowing(data: {
 }): Promise<Borrowing> {
   try {
     const res = await apiClient.post<Borrowing>("/borrowings", data);
-    if (res.data) {
-      return res.data;
+
+    if (!res.data) {
+      throw new Error("Réponse invalide du serveur.");
     }
-  } catch {
-    // Fallback
+
+    // console.log("Borrowing created via API:", res.data);
+
+    return res.data;
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.detail ||
+      error?.message ||
+      "Impossible d'enregistrer l'emprunt.";
+
+    throw new Error(message);
   }
 
-  await delay();
-  const books = getStoredBooks();
-  const borrowers = getStoredBorrowers();
-  const borrowings = getStoredBorrowings();
+  // await delay();
+  // const books = getStoredBooks();
+  // const borrowers = getStoredBorrowers();
+  // const borrowings = getStoredBorrowings();
 
-  const bookIndex = books.findIndex(
-    (b) => String(b.id) === String(data.book_id)
-  );
-  if (bookIndex === -1) {
-    throw new Error("Livre introuvable.");
-  }
+  // const bookIndex = books.findIndex(
+  //   (b) => String(b.id) === String(data.book_id)
+  // );
+  // if (bookIndex === -1) {
+  //   throw new Error("Livre introuvable.");
+  // }
 
-  const book = books[bookIndex];
+  // const book = books[bookIndex];
 
-  // Business rule: Un livre emprunté ne peut pas être emprunté.
-  if (book.status === "borrowed" || book.current_borrowing) {
-    throw new Error("Ce livre est déjà actuellement emprunté.");
-  }
+  // // Business rule: Un livre emprunté ne peut pas être emprunté.
+  // if (book.status === "borrowed" || book.current_borrowing) {
+  //   throw new Error("Ce livre est déjà actuellement emprunté.");
+  // }
 
-  const borrower = borrowers.find(
-    (b) => String(b.id) === String(data.borrower_id)
-  );
-  if (!borrower) {
-    throw new Error("Emprunteur introuvable.");
-  }
+  // const borrower = borrowers.find(
+  //   (b) => String(b.id) === String(data.borrower_id)
+  // );
+  // if (!borrower) {
+  //   throw new Error("Emprunteur introuvable.");
+  // }
 
-  if (borrower.status === "suspended") {
-    throw new Error("Le compte de cet emprunteur est suspendu.");
-  }
+  // if (borrower.status === "suspended") {
+  //   throw new Error("Le compte de cet emprunteur est suspendu.");
+  // }
 
-  const todayStr = new Date().toISOString().split("T")[0];
-  // Default due date: 21 days from now
-  const defaultDueDate = new Date(Date.now() + 21 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split("T")[0];
-  const finalDueDate = data.due_date || defaultDueDate;
+  // const todayStr = new Date().toISOString().split("T")[0];
+  // // Default due date: 21 days from now
+  // const defaultDueDate = new Date(Date.now() + 21 * 24 * 60 * 60 * 1000)
+  //   .toISOString()
+  //   .split("T")[0];
+  // const finalDueDate = data.due_date || defaultDueDate;
 
-  const newBorrowingId = "bw-" + Date.now();
+  // const newBorrowingId = "bw-" + Date.now();
 
-  const newBorrowing: Borrowing = {
-    id: newBorrowingId,
-    book_id: book.id,
-    book_title: book.title,
-    book_author: book.author,
-    borrower_id: borrower.id,
-    borrower_name: borrower.name,
-    borrower_email: borrower.email,
-    borrowed_at: todayStr,
-    due_date: finalDueDate,
-    returned_at: null,
-    status: "active",
-    notes: data.notes,
-  };
+  // const newBorrowing: Borrowing = {
+  //   id: newBorrowingId,
+  //   book_id: book.id,
+  //   book_title: book.title,
+  //   book_author: book.author,
+  //   borrower_id: borrower.id,
+  //   borrower_name: borrower.name,
+  //   borrower_email: borrower.email,
+  //   borrowed_at: todayStr,
+  //   due_date: finalDueDate,
+  //   returned_at: null,
+  //   status: "active",
+  //   notes: data.notes,
+  // };
 
-  // Update book state
-  books[bookIndex] = {
-    ...book,
-    status: "borrowed",
-    current_borrowing: {
-      id: newBorrowing.id,
-      borrower_id: borrower.id,
-      borrower_name: borrower.name,
-      borrower_email: borrower.email,
-      borrowed_at: todayStr,
-      due_date: finalDueDate,
-    },
-    total_borrowings_count: (book.total_borrowings_count || 0) + 1,
-  };
+  // // Update book state
+  // books[bookIndex] = {
+  //   ...book,
+  //   status: "borrowed",
+  //   current_borrowing: {
+  //     id: newBorrowing.id,
+  //     borrower_id: borrower.id,
+  //     borrower_name: borrower.name,
+  //     borrower_email: borrower.email,
+  //     borrowed_at: todayStr,
+  //     due_date: finalDueDate,
+  //   },
+  //   total_borrowings_count: (book.total_borrowings_count || 0) + 1,
+  // };
 
-  saveStoredBooks(books);
-  saveStoredBorrowings([newBorrowing, ...borrowings]);
+  // saveStoredBooks(books);
+  // saveStoredBorrowings([newBorrowing, ...borrowings]);
 
-  addStoredActivity({
-    type: "borrow",
-    title: "Nouvel emprunt enregistré",
-    description: `${borrower.name} a emprunté "${book.title}"`,
-    timestamp: new Date().toISOString(),
-    book_id: book.id,
-    borrower_id: borrower.id,
-  });
+  // addStoredActivity({
+  //   type: "borrow",
+  //   title: "Nouvel emprunt enregistré",
+  //   description: `${borrower.name} a emprunté "${book.title}"`,
+  //   timestamp: new Date().toISOString(),
+  //   book_id: book.id,
+  //   borrower_id: borrower.id,
+  // });
 
-  return newBorrowing;
+  // return newBorrowing;
 }
 
 export async function returnBorrowing(
@@ -207,62 +234,68 @@ export async function returnBorrowing(
     const res = await apiClient.post<Borrowing>(
       `/borrowings/${borrowingId}/return`
     );
-    if (res.data) {
-      return res.data;
+    if (!res.data) {
+      throw new Error("Réponse invalide du serveur.");
     }
-  } catch {
-    // Fallback
+    return res.data;
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.detail ||
+      error?.message ||
+      "Impossible d'enregistrer le retour.";
+
+    throw new Error(message);
   }
 
-  await delay();
-  const borrowings = getStoredBorrowings();
-  const books = getStoredBooks();
+  // await delay();
+  // const borrowings = getStoredBorrowings();
+  // const books = getStoredBooks();
 
-  const borrowingIndex = borrowings.findIndex(
-    (bw) => String(bw.id) === String(borrowingId)
-  );
-  if (borrowingIndex === -1) {
-    throw new Error("Emprunt introuvable.");
-  }
+  // const borrowingIndex = borrowings.findIndex(
+  //   (bw) => String(bw.id) === String(borrowingId)
+  // );
+  // if (borrowingIndex === -1) {
+  //   throw new Error("Emprunt introuvable.");
+  // }
 
-  const currentBw = borrowings[borrowingIndex];
-  if (currentBw.returned_at || currentBw.status === "returned") {
-    throw new Error("Cet emprunt a déjà été retourné.");
-  }
+  // const currentBw = borrowings[borrowingIndex];
+  // if (currentBw.returned_at || currentBw.status === "returned") {
+  //   throw new Error("Cet emprunt a déjà été retourné.");
+  // }
 
-  const todayStr = new Date().toISOString().split("T")[0];
-  const updatedBorrowing: Borrowing = {
-    ...currentBw,
-    returned_at: todayStr,
-    status: "returned",
-  };
+  // const todayStr = new Date().toISOString().split("T")[0];
+  // const updatedBorrowing: Borrowing = {
+  //   ...currentBw,
+  //   returned_at: todayStr,
+  //   status: "returned",
+  // };
 
-  borrowings[borrowingIndex] = updatedBorrowing;
-  saveStoredBorrowings(borrowings);
+  // borrowings[borrowingIndex] = updatedBorrowing;
+  // saveStoredBorrowings(borrowings);
 
-  // Business rule: Le retour rend automatiquement le livre disponible.
-  const bookIndex = books.findIndex(
-    (b) => String(b.id) === String(currentBw.book_id)
-  );
-  if (bookIndex !== -1) {
-    books[bookIndex] = {
-      ...books[bookIndex],
-      status: "available",
-      current_borrowing: null,
-    };
-    saveStoredBooks(books);
-  }
+  // // Business rule: Le retour rend automatiquement le livre disponible.
+  // const bookIndex = books.findIndex(
+  //   (b) => String(b.id) === String(currentBw.book_id)
+  // );
+  // if (bookIndex !== -1) {
+  //   books[bookIndex] = {
+  //     ...books[bookIndex],
+  //     status: "available",
+  //     current_borrowing: null,
+  //   };
+  //   saveStoredBooks(books);
+  // }
 
-  addStoredActivity({
-    type: "return",
-    title: "Retour enregistré",
-    description: `Le livre "${currentBw.book_title}" a été retourné par ${currentBw.borrower_name}`,
-    timestamp: new Date().toISOString(),
-    book_id: currentBw.book_id,
-    borrower_id: currentBw.borrower_id,
-  });
+  // addStoredActivity({
+  //   type: "return",
+  //   title: "Retour enregistré",
+  //   description: `Le livre "${currentBw.book_title}" a été retourné par ${currentBw.borrower_name}`,
+  //   timestamp: new Date().toISOString(),
+  //   book_id: currentBw.book_id,
+  //   borrower_id: currentBw.borrower_id,
+  // });
 
-  return updatedBorrowing;
+  // return updatedBorrowing;
 }
 
 export async function getBorrowingsHistory(params?: {

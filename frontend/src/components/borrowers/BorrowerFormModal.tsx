@@ -45,9 +45,9 @@ export const BorrowerFormModal: React.FC<BorrowerFormModalProps> = ({
       newErrors.name = 'Le nom complet est obligatoire';
     }
     if (!email.trim()) {
-      newErrors.email = 'L’adresse email est obligatoire';
+      newErrors.email = "L'adresse email est obligatoire";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Format d’email invalide';
+      newErrors.email = "Format d'email invalide";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -66,11 +66,11 @@ export const BorrowerFormModal: React.FC<BorrowerFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={borrowerToEdit ? 'Modifier l’emprunteur' : 'Inscrire un nouvel emprunteur'}
+      title={borrowerToEdit ? "Modifier l'emprunteur" : 'Inscrire un nouvel emprunteur'}
       description={
         borrowerToEdit
           ? 'Mettez à jour les coordonnées de cet adhérent.'
-          : 'Créez un nouveau compte emprunteur pour autoriser les prêts d’ouvrages.'
+          : "Créez un nouveau compte emprunteur pour autoriser les prêts d'ouvrages."
       }
       maxWidth="md"
     >
@@ -108,7 +108,7 @@ export const BorrowerFormModal: React.FC<BorrowerFormModalProps> = ({
             Annuler
           </Button>
           <Button type="submit" variant="primary" size="sm" isLoading={isLoading}>
-            {borrowerToEdit ? 'Enregistrer' : 'Inscrire l’emprunteur'}
+            {borrowerToEdit ? 'Enregistrer' : "Inscrire l'emprunteur"}
           </Button>
         </div>
       </form>

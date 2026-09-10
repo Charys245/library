@@ -44,7 +44,7 @@ export const BookDeleteModal: React.FC<BookDeleteModalProps> = ({
           <AlertCircle className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
           <div>
             <span className="font-semibold block text-amber-200">Emprunt actif :</span>
-            Emprunté par {book.current_borrowing?.borrower_name || 'un adhérent'}. Enregistrez d’abord le retour de l’exemplaire.
+            Emprunté par {book.current_borrowing?.borrower_name || 'un adhérent'}. Enregistrez d'abord le retour de l'exemplaire.
           </div>
         </div>
       )}

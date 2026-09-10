@@ -3,7 +3,6 @@ from app.domain.entities.borrower import Borrower
 
 
 class CreateBorrower:
-
     def __init__(self, repository: BorrowerRepository):
         self.repository = repository
 
@@ -14,7 +13,6 @@ class CreateBorrower:
 
 
 class ListBorrowers:
-
     def __init__(self, repository: BorrowerRepository):
         self.repository = repository
 
@@ -23,7 +21,6 @@ class ListBorrowers:
 
 
 class GetBorrower:
-
     def __init__(self, repository: BorrowerRepository):
         self.repository = repository
 
@@ -47,7 +44,6 @@ class UpdateBorrower:
         email: str,
         phone: str | None = None,
     ) -> Borrower:
-
         borrower = self.repository.get_by_id(borrower_id)
 
         if borrower is None:
@@ -61,12 +57,10 @@ class UpdateBorrower:
 
 
 class DeleteBorrower:
-
     def __init__(self, repository: BorrowerRepository):
         self.repository = repository
 
     def execute(self, borrower_id: int) -> bool:
-
         borrower = self.repository.get_by_id(borrower_id)
 
         if borrower is None:

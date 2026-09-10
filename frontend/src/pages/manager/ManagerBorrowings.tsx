@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import type { Borrowing } from "../../types";
+import { formaterDate } from "../../utils/function";
 import {
   useBorrowings,
   useCreateBorrowing,
   useReturnBorrowing,
+  isAlreadyDoneError,
 } from "../../hooks/useQueries";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -21,6 +23,7 @@ import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { BorrowModal } from "../../components/borrowings/BorrowModal";
 import { ReturnConfirmModal } from "../../components/borrowings/ReturnConfirmModal";
+import { Pagination } from "../../components/ui/Pagination";
 import { useToast } from "../../context/ToastContext";
 import {
   ArrowLeftRight,
@@ -32,6 +35,14 @@ import {
 
 export const ManagerBorrowings: React.FC = () => {
   const { success, error: toastError } = useToast();
+
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handleItemsPerPageChange = (size: number) => {
+    setItemsPerPage(size);
+    setCurrentPage(1);
+  };
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<
@@ -61,14 +72,16 @@ export const ManagerBorrowings: React.FC = () => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setActiveSearch(searchInput);
+    setCurrentPage(1);
   };
 
   const handleCreateBorrow = async (data: any) => {
     try {
       await createBorrowingMutation.mutateAsync(data);
-      success("Emprunt créé", "L’emprunt a été enregistré avec succès.");
+      success("Emprunt créé", "L'emprunt a été enregistré avec succès.");
       setIsBorrowModalOpen(false);
     } catch (err: any) {
+      if (isAlreadyDoneError(err)) return;
       toastError("Erreur", err?.message);
     }
   };
@@ -83,6 +96,7 @@ export const ManagerBorrowings: React.FC = () => {
       );
       setReturnTarget(null);
     } catch (err: any) {
+      if (isAlreadyDoneError(err)) { setReturnTarget(null); return; }
       toastError("Erreur", err?.message);
     }
   };
@@ -127,7 +141,7 @@ export const ManagerBorrowings: React.FC = () => {
         <div className="flex items-center gap-1.5 p-1 bg-[#111114] border border-zinc-800 rounded-lg self-start sm:self-auto overflow-x-auto max-w-full">
           <button
             type="button"
-            onClick={() => setStatusFilter("active")}
+            onClick={() => { setStatusFilter("active"); setCurrentPage(1); }}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
               statusFilter === "active"
                 ? "bg-zinc-800 text-blue-400 font-semibold"
@@ -138,7 +152,7 @@ export const ManagerBorrowings: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setStatusFilter("overdue")}
+            onClick={() => { setStatusFilter("overdue"); setCurrentPage(1); }}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
               statusFilter === "overdue"
                 ? "bg-zinc-800 text-red-400 font-semibold"
@@ -149,7 +163,7 @@ export const ManagerBorrowings: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setStatusFilter("returned")}
+            onClick={() => { setStatusFilter("returned"); setCurrentPage(1); }}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
               statusFilter === "returned"
                 ? "bg-zinc-800 text-zinc-200 font-semibold"
@@ -160,7 +174,7 @@ export const ManagerBorrowings: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setStatusFilter("all")}
+            onClick={() => { setStatusFilter("all"); setCurrentPage(1); }}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
               statusFilter === "all"
                 ? "bg-zinc-800 text-zinc-100 font-semibold"
@@ -187,12 +201,13 @@ export const ManagerBorrowings: React.FC = () => {
           description={
             activeSearch || statusFilter !== "all"
               ? "Aucun prêt ne correspond à ce filtre."
-              : "Aucun emprunt n’est actuellement enregistré."
+              : "Aucun emprunt n'est actuellement enregistré."
           }
           actionLabel="Créer un emprunt"
           onAction={() => setIsBorrowModalOpen(true)}
         />
       ) : (
+        <>
         <Table>
           <TableHeader>
             <TableRow>
@@ -206,7 +221,7 @@ export const ManagerBorrowings: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {borrowings.map((bw) => {
+            {borrowings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((bw) => {
               const isActive =
                 !bw.returned_at &&
                 (bw.status === "active" || bw.status === "overdue");
@@ -238,7 +253,7 @@ export const ManagerBorrowings: React.FC = () => {
 
                   {/* Date d'emprunt */}
                   <TableCell className="text-xs font-mono text-zinc-300">
-                    {bw.borrowed_at}
+                    {formaterDate(bw.borrowed_at)}
                   </TableCell>
 
                   {/* Retour prévu */}
@@ -250,13 +265,13 @@ export const ManagerBorrowings: React.FC = () => {
                           : "text-zinc-300"
                       }
                     >
-                      {bw.due_date}
+                      {formaterDate(bw.due_date)}
                     </span>
                   </TableCell>
 
                   {/* Date de retour */}
                   <TableCell className="text-xs font-mono text-zinc-400">
-                    {bw.returned_at || "—"}
+                    {bw.returned_at ? formaterDate(bw.returned_at) : "—"}
                   </TableCell>
 
                   {/* Statut */}
@@ -289,6 +304,15 @@ export const ManagerBorrowings: React.FC = () => {
             })}
           </TableBody>
         </Table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(borrowings.length / itemsPerPage)}
+          onPageChange={setCurrentPage}
+          totalItems={borrowings.length}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
+        </>
       )}
 
       {/* Modals */}

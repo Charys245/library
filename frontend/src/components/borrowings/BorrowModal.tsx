@@ -94,7 +94,7 @@ export const BorrowModal: React.FC<BorrowModalProps> = ({
         notes: notes.trim() || undefined,
       });
     } catch (err: any) {
-      setError(err?.message || 'Erreur lors de l’enregistrement de l’emprunt.');
+      setError(err?.message || "Erreur lors de l'enregistrement de l'emprunt.");
     }
   };
 
@@ -202,7 +202,7 @@ export const BorrowModal: React.FC<BorrowModalProps> = ({
             isLoading={isLoading}
             leftIcon={<BookmarkPlus className="w-3.5 h-3.5" />}
           >
-            Valider l’emprunt
+            Valider l'emprunt
           </Button>
         </div>
       </form>

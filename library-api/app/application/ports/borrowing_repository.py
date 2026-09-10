@@ -4,13 +4,12 @@ from app.domain.entities.borrowing import Borrowing
 
 
 class BorrowingRepository(ABC):
-
     @abstractmethod
     def save(self, borrowing: Borrowing) -> Borrowing:
         pass
 
     @abstractmethod
-    def get_all(self) -> list[Borrowing]:
+    def get_all(self, status: str | None = None) -> list[Borrowing]:
         pass
 
     @abstractmethod

@@ -57,7 +57,7 @@ export const BorrowerCatalog: React.FC = () => {
         `"${book.title}" a été ajouté à vos emprunts en cours.`
       );
     } catch (err: any) {
-      toastError("Erreur lors de l’emprunt", err?.message);
+      toastError("Erreur lors de l'emprunt", err?.message);
     }
   };
 
@@ -152,6 +152,7 @@ export const BorrowerCatalog: React.FC = () => {
               onBorrow={handleBorrowBook}
               showBorrowButton={true}
               basePath="/borrower/catalog"
+              isBorrowing={createBorrowingMutation.isPending}
             />
           ))}
         </div>

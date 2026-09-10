@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dialog } from '../ui/Dialog';
 import type { Borrowing } from '@/types';
+import { formaterDate } from '../../utils/function';
 
 interface ReturnConfirmModalProps {
   isOpen: boolean;
@@ -34,12 +35,12 @@ export const ReturnConfirmModal: React.FC<ReturnConfirmModalProps> = ({
       <div className="p-3 bg-[#0c0c0e] rounded-lg border border-zinc-800 text-xs space-y-1.5 text-zinc-300">
         <div className="flex justify-between">
           <span className="text-zinc-500">Date d'emprunt :</span>
-          <span>{borrowing.borrowed_at}</span>
+          <span>{formaterDate(borrowing.borrowed_at)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-zinc-500">Date prévue :</span>
           <span className={borrowing.status === 'overdue' ? 'text-red-400 font-semibold' : ''}>
-            {borrowing.due_date}
+            {formaterDate(borrowing.due_date)}
           </span>
         </div>
         <div className="flex justify-between pt-1 border-t border-zinc-800/80">
